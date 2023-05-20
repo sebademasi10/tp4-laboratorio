@@ -1,0 +1,22 @@
+<!-- table to show dataSource (rnd, nextArriving, arrivingTime) -->
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <!-- Column definitions -->
+    <ng-container matColumnDef="rnd">
+        <th mat-header-cell *matHeaderCellDef> Rnd </th>
+        <td mat-cell *matCellDef="let element"> {{element.rnd}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="nextArriving">
+        <th mat-header-cell *matHeaderCellDef> Next Arriving </th>
+        <td mat-cell *matCellDef="let element"> {{element.nextArriving}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="arrivingTime">
+        <th mat-header-cell *matHeaderCellDef> Arriving Time </th>
+        <td mat-cell *matCellDef="let element"> {{element.arrivingTime}} </td>
+    </ng-container>
+
+    <!-- Row definitions -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
