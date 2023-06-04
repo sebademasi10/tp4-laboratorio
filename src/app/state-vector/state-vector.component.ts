@@ -11,6 +11,7 @@ import { Technical } from '../models/technical';
 export class StateVectorComponent {
   // mock dataSource, each element with eventName, clock, secuencial numbers
   dataSource: any;
+  eventsToBeProcessed: any;
 
   // displayedColumns is used to display the columns in the table
   displayedColumns = [
@@ -22,7 +23,7 @@ export class StateVectorComponent {
   ];
   arrivingEvents = [
     'rnd',
-    'arrivingTime',
+    'timeBetweenArrivings',
     'nextArriving',
     'rndWork',
     'work',
@@ -38,7 +39,7 @@ export class StateVectorComponent {
     'eventName',
     'clock',
     'rnd',
-    'arrivingTime',
+    'timeBetweenArrivings',
     'nextArriving',
     'rndWork',
     'work',
@@ -54,46 +55,61 @@ export class StateVectorComponent {
   constructor() {
     this.clock = 0;
   }
-
   // ng on init
   ngOnInit() {
     const rndGenerator = new Random();
     this.dataSource = [];
-
+    this.eventsToBeProcessed = [];
     // loop 10 times
     for (let i = 0; i < 10; i++) {
-      console.log('i', i)
-
       const devicesArriving = new DevicesArriving(rndGenerator);
-      const arrivingTime = +devicesArriving.arrivingTime;
-      this.nextArriving = this.clock + arrivingTime;
+      const timeBetweenArrivings = +devicesArriving.timeBetweenArrivings;
+      devicesArriving.nextArriving = this.clock + timeBetweenArrivings;
       // get Technical instance
       const technical = Technical.getInstance();
-      // set technical state to Ocupado
+      // set technical state to Libre
       technical.setState('Libre');
-      this.dataSource.push(
-        {
-          eventName: '',
-          clock: i === 0 ? 0 : this.getNextEventTime(),
-          rnd: devicesArriving.rnd,
-          nextArriving: this.nextArriving,
-          arrivingTime: arrivingTime,
-          rndWork: '',
-          work: '',
-          rndFinishing: '',
-          finishing: '',
-          finishingTime: '',
-          technicalState: technical.getState(),
-          technicalQueue: '',
-        }
-      )
-      const nextEventTime = this.getNextEventTime();
+      const event = {
+        eventName: '',
+        clock: 0,
+        rnd: devicesArriving.rnd,
+        nextArriving: devicesArriving.nextArriving,
+        timeBetweenArrivings: timeBetweenArrivings,
+        rndWork: '',
+        work: '',
+        rndFinishing: '',
+        finishing: '',
+        finishingTime: '',
+        technicalState: technical.getState(),
+        technicalQueue: '',
+      }
+
+      let nextEvent;
+      if (i === 0) {
+        event.eventName = 'Inicialización';
+        nextEvent = event;
+      } else {
+        nextEvent = this.getNextEvent();
+        event.eventName = 'Llegada de equipo';
+        event.clock += nextEvent.nextArriving;
+        this.dataSource.push(nextEvent);
+      }
+      this.eventsToBeProcessed.push(event);
+      this.clock = event.nextArriving;
     }
-
-    console.log(this.dataSource)
   }
-
-  getNextEventTime(): number {
-    return Math.min(this.nextArriving); // TODO, add more events
+  // get next event
+  getNextEvent() {
+    console.log(this.eventsToBeProcessed)
+    // find the event with the lowest nextArriving in the eventsToBeProcessed array
+    const nextEvent = this.eventsToBeProcessed.reduce((prev: any, curr: any) => {
+      return prev.nextArriving < curr.nextArriving ? prev : curr;
+    });
+    // remove the event from the eventsToBeProcessed array
+    this.eventsToBeProcessed = this.eventsToBeProcessed.filter((event: any) => {
+      return event !== nextEvent;
+    });
+    console.log(this.eventsToBeProcessed)
+    return nextEvent;
   }
 }
