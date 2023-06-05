@@ -1,0 +1,14 @@
+/* center column headers */
+th {
+  text-align: center;
+}
+
+/* center column data */
+td {
+  text-align: center;
+}
+
+/* show columns lines separators*/
+td, th {
+  border: 1px solid #dddddd;
+}

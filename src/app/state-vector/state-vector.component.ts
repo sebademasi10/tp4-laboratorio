@@ -62,6 +62,7 @@ export class StateVectorComponent {
   ]
   clock: number;
   nextArriving: any;
+  colspan = 3;
 
   constructor() {
     this.clock = 0;
@@ -75,7 +76,6 @@ export class StateVectorComponent {
     for (let i = 0; i < 10; i++) {
       const temporalObjectInstance = this.getTemporalObjectInstance(i);
       this.tempObjectsColumns.push(...temporalObjectInstance);
-      console.log(this.tempObjectsColumns);
       const devicesArriving = new DevicesArriving(rndGenerator);
       const timeBetweenArrivings = +devicesArriving.timeBetweenArrivings;
       devicesArriving.nextArriving = this.clock + timeBetweenArrivings;
@@ -112,6 +112,8 @@ export class StateVectorComponent {
       this.clock = event.nextArriving;
     }
     this.arrivingEvents.push(...this.tempObjectsColumns);
+    this.colspan = this.tempObjectsColumns.length * 3;
+    console.log(this.colspan);
   }
   getTemporalObjectInstance(index: number) {
     // for of with index
