@@ -19,8 +19,18 @@ export class StateVectorComponent {
     'clock',
     'arrivingDevices',
     'workFinishing',
-    'technical'
+    'technical',
+    'devices'
   ];
+
+  tempObjectsColumnsTemplate = [
+    'Estado',
+    'Hora',
+    'Cambio',
+  ];
+  tempObjectsColumns: string[] = [
+  ];
+
   arrivingEvents = [
     'rnd',
     'timeBetweenArrivings',
@@ -33,6 +43,7 @@ export class StateVectorComponent {
     'technicalState',
     'technicalQueue',
   ];
+
 
   // concat displayedColumns and arrivingEvents
   columnsToDisplay = [
@@ -47,7 +58,7 @@ export class StateVectorComponent {
     'finishing',
     'finishingTime',
     'technicalState',
-    'technicalQueue'
+    'technicalQueue',
   ]
   clock: number;
   nextArriving: any;
@@ -62,6 +73,9 @@ export class StateVectorComponent {
     this.eventsToBeProcessed = [];
     // loop 10 times
     for (let i = 0; i < 10; i++) {
+      const temporalObjectInstance = this.getTemporalObjectInstance(i);
+      this.tempObjectsColumns.push(...temporalObjectInstance);
+      console.log(this.tempObjectsColumns);
       const devicesArriving = new DevicesArriving(rndGenerator);
       const timeBetweenArrivings = +devicesArriving.timeBetweenArrivings;
       devicesArriving.nextArriving = this.clock + timeBetweenArrivings;
@@ -97,10 +111,18 @@ export class StateVectorComponent {
       this.eventsToBeProcessed.push(event);
       this.clock = event.nextArriving;
     }
+    this.arrivingEvents.push(...this.tempObjectsColumns);
+  }
+  getTemporalObjectInstance(index: number) {
+    // for of with index
+    let temporalObectsArray = []
+    for (const column of this.tempObjectsColumnsTemplate) {
+      temporalObectsArray.push(`${column} ${index + 1}`)
+    }
+    return temporalObectsArray;
   }
   // get next event
   getNextEvent() {
-    console.log(this.eventsToBeProcessed)
     // find the event with the lowest nextArriving in the eventsToBeProcessed array
     const nextEvent = this.eventsToBeProcessed.reduce((prev: any, curr: any) => {
       return prev.nextArriving < curr.nextArriving ? prev : curr;
@@ -109,7 +131,6 @@ export class StateVectorComponent {
     this.eventsToBeProcessed = this.eventsToBeProcessed.filter((event: any) => {
       return event !== nextEvent;
     });
-    console.log(this.eventsToBeProcessed)
     return nextEvent;
   }
 }
