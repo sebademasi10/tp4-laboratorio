@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Random } from 'random';
 import { DevicesArriving } from '../models/devices-arriving';
 import { Technical } from '../models/technical';
+import { WorkFinishing } from '../models/work-finishing';
 
 @Component({
   selector: 'app-state-vector',
@@ -69,21 +70,22 @@ export class StateVectorComponent {
   }
   // ng on init
   ngOnInit() {
-    const rndGenerator = new Random();
+    const rndGeneratorArrivings = new Random();
+    const rndGeneratorWork = new Random();
     this.dataSource = [];
     this.eventsToBeProcessed = [];
     // loop 10 times
     for (let i = 0; i < 10; i++) {
       const temporalObjectInstance = this.getTemporalObjectInstance(i);
       this.tempObjectsColumns.push(...temporalObjectInstance);
-      const devicesArriving = new DevicesArriving(rndGenerator);
+      const devicesArriving = new DevicesArriving(rndGeneratorArrivings);
       const timeBetweenArrivings = +devicesArriving.timeBetweenArrivings;
       devicesArriving.nextArriving = this.clock + timeBetweenArrivings;
       // get Technical instance
       const technical = Technical.getInstance();
       // set technical state to Libre
       technical.setState('Libre');
-      const event = {
+      let event = {
         eventName: '',
         clock: 0,
         rnd: devicesArriving.rnd,
@@ -110,11 +112,24 @@ export class StateVectorComponent {
       }
       this.eventsToBeProcessed.push(event);
       this.clock = event.nextArriving;
+      if (i > 0) {
+        const workFinishing = this.getWorkFinishing(rndGeneratorWork);
+        event.rndWork = workFinishing.rndWork.toFixed(2)
+        event.work = workFinishing.work.toString()
+        event.rndFinishing = workFinishing.rndFinishing.toFixed(2)
+        event.finishing = workFinishing.finishing.toFixed(2)
+        event.finishingTime = (+event.finishing + event.clock).toFixed(2);
+      }
     }
     this.arrivingEvents.push(...this.tempObjectsColumns);
     this.colspan = this.tempObjectsColumns.length * 3;
-    console.log(this.colspan);
   }
+
+  getWorkFinishing(rndGeneratorWork: Random) {
+    const workFinishing = new WorkFinishing(rndGeneratorWork);
+    return workFinishing;
+  }
+
   getTemporalObjectInstance(index: number) {
     // for of with index
     let temporalObectsArray = []
